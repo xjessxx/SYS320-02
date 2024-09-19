@@ -1,0 +1,34 @@
+list all apache files of xampp
+Get-Content C:\xampp\apache\logs\access.log
+list only last five
+Get-Content C:\xampp\apache\logs\access.log -Last 5
+
+display only logs containing 404 or 400
+Get-Content C:\xampp\apache\logs\access.log | Select-String ' 404 ', ' 400 '
+
+display logs that do not contain 200
+Get-Content C:\xampp\apache\logs\access.log | Select-String ' 200 ' -NotMatch
+
+only logs that contain the word error
+$A = Get-ChildItem  C:\xampp\apache\logs\*.log | Select-String -AllMatches 'error'
+$A[-5..-1]
+
+#get 404s and save into not founds
+$notfounds = Get-Content C:\xampp\apache\logs\access.log | Select-String ' 404 '
+#define a regex for IPAdresses
+$regex = [regex] "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
+
+#get notfounds records that match the regex
+$ipsUnorganized = $regex.Matches($notfounds)
+
+#get ips as pscustomobject
+$ips = @()
+for($i=0; $i -lt $ipsUnorganized.Count; $i++){
+$ips += [pscustomobject]@{ "IP" = $ipsUnorganized[$i].Value; }
+}
+$ips | Where-Object { $_.IP -ilike "10.*" }
+
+$ipsoftens = $ips | Where-Object { $_.IP -ilike "10.*" }
+$counts = $ipsoftens | group IP
+$counts | Select-Object Count, Name
+
