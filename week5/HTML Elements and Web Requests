@@ -1,0 +1,19 @@
+$scraped_page = Invoke-WebRequest -TimeoutSec 10 http://10.0.17.8/ToBeScraped.html
+
+#get count of links
+$scraped_page.Count
+#display links as HTML elements
+$scraped_page.Links
+
+#display only url and texts
+$scraped_page.Links | Select outerText, href
+
+$h2s=$scraped_page.ParsedHtml.body.getElementsByTagName("h2") | Select outerText
+
+$h2s
+
+#print innertext of every div with class div-1
+$divs1=$scraped_page.ParsedHtml.body.getElementsByTagName("div") | where {
+$_.getAttributeNode("class").value -ilike "*div-1*"} | Select innerText
+
+$divs1
